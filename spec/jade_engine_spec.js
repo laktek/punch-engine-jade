@@ -1,6 +1,19 @@
 var jade_renderer = require("../lib/jade_engine.js");
 var Jade = require("jade");
 
+describe("setup", function() {
+  var sample_config = {
+	  template_dir: "templates"
+	};
+
+  it("set the template dir", function() {
+    jade_renderer.setup(sample_config);
+
+		expect(jade_renderer.template_dir).toEqual("templates");
+  });
+
+});
+
 describe("creating a new instance", function(){
 
 	it("set the extension as jade", function(){
@@ -12,8 +25,10 @@ describe("creating a new instance", function(){
 
 describe("calling render", function(){
 
-	it("call Jade's compile function with the template", function(){
+	it("call Jade's compile function with the template and basedir", function(){
     spyOn(Jade, "compile");
+    jade_renderer.template_dir = "templates";
+    spyOn(process, "cwd").andReturn("path/to");
 
     var jade_instance = new jade_renderer();
 		jade_instance.template = "template";
@@ -24,7 +39,7 @@ describe("calling render", function(){
 		spyOn(jade_instance, "emit");
 
 		jade_instance.render();
-		expect(Jade.compile).toHaveBeenCalledWith("template");
+		expect(Jade.compile).toHaveBeenCalledWith("template", { "basedir": 'path/to/templates' });
 	});
 
 	it("call compiled template with contents and helpers", function() {
